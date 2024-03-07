@@ -1,0 +1,10 @@
+App:
+  Environment: "prod"
+  Id: "DNS-ASSESSMENT"
+  DNSServer: "1.1.1.1"
+Kafka:
+  Brokers: ["localhost:9092"]
+  TopicsConsumer: ["security-assessment"]
+  TopicsProducer: ["result-assessment"]
+  TopicsError: ["security-assessment-error"]
+  GroupID: "security-assessment-ingestion-group"
