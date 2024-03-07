@@ -2,7 +2,7 @@ package scanner
 
 import (
 	"fmt"
-	"github.com/jacksonbarreto/DNSSECAnalyzer/config"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/config"
 	"testing"
 )
 

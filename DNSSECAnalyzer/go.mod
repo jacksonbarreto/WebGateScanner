@@ -5,7 +5,6 @@ go 1.21.0
 require (
 	bou.ke/monkey v1.0.2
 	github.com/IBM/sarama v1.42.1
-	github.com/jacksonbarreto/DNSSECAnalyzer v0.0.0-20231230213248-a0502e294a3a
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/spf13/viper v1.18.1
 )
