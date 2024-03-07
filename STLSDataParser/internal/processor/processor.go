@@ -2,17 +2,16 @@ package processor
 
 import (
 	"encoding/json"
-	"github.com/jacksonbarreto/WebGateScanner/config"
-	"github.com/jacksonbarreto/WebGateScanner/internal/models"
-	"github.com/jacksonbarreto/WebGateScanner/internal/parser"
-	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/config"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/models"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/parser"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
 	"os"
 	"path/filepath"
 )
 
 type Processor struct {
-	KafkaProducer *kafka.producer.IProducer
+	KafkaProducer *producer.IProducer
 	Parser        *parser.IParser
 	// I will need include logger
 }
@@ -24,6 +23,7 @@ func New(producer *producer.IProducer, parser *parser.IParser) *Processor {
 	}
 }
 
+// esses tipos de msg de response devem vir do módulo do scanner
 func (p *Processor) ProcessFile(filePath string) error {
 	fileContent, readFileErr := os.ReadFile(filePath)
 	if readFileErr != nil {
