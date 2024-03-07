@@ -7,6 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/spf13/viper v1.18.2
+	github.com/jacksonbarreto/WebGateScanner/pkg/kafka v0.0.0
 )
 
 require (
@@ -46,3 +47,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+replace github.com/jacksonbarreto/WebGateScanner/pkg/kafka => ../pkg/kafka
