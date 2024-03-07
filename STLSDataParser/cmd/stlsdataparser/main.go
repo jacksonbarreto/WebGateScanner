@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"github.com/fsnotify/fsnotify"
-	"github.com/jacksonbarreto/STLSDataParser/config"
-	"github.com/jacksonbarreto/STLSDataParser/internal/models"
-	"github.com/jacksonbarreto/STLSDataParser/internal/producer"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/config"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/models"
+	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,7 +24,7 @@ func main() {
 	errorPath := config.App().ErrorParsePath
 	pathToWatch := config.App().PathToWatch
 
-	kafkaProducer, producerErr := producer.NewProducerDefault()
+	kafkaProducer, producerErr := producer.New(config.Kafka().TopicsProducer[0], config.Kafka().Brokers, config.Kafka().MaxRetry)
 	if producerErr != nil {
 		panic(producerErr)
 	}
@@ -110,10 +110,8 @@ func processFile(filePath string, writer *producer.Producer) error {
 		RawData:      string(fileContent),
 	}
 	jsonData, err := json.Marshal(msg)
-	for _, topic := range config.Kafka().TopicsProducer {
-		if _, _, err := writer.SendMessage(topic, string(jsonData)); err != nil {
-			return err
-		}
+	if _, _, err := writer.SendMessage(string(jsonData)); err != nil {
+		return err
 	}
 
 	return nil

@@ -10,3 +10,4 @@ Kafka:
   TopicsProducer: ["result-assessment"]
   TopicsError: ["security-assessment-error"]
   GroupID: "security-assessment-ingestion-group"
+  MaxRetry: 3

@@ -10,7 +10,7 @@ type Producer struct {
 	topic        string
 }
 
-func NewProducer(topic string, brokers []string, maxRetry int) (*Producer, error) {
+func New(topic string, brokers []string, maxRetry int) (*Producer, error) {
 	configSarama := sarama.NewConfig()
 	configSarama.Producer.Return.Successes = true
 	configSarama.Producer.RequiredAcks = sarama.WaitForAll
