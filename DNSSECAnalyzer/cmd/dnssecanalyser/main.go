@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/config"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/internal/groupHandler"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/internal/scanner"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/consumer"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
@@ -20,9 +21,9 @@ func main() {
 	}
 	defer kafkaProducer.Close()
 
-	handler := consumer.NewAnalysisConsumerGroupHandlerDefault(dnsScanner, kafkaProducer)
+	handler := groupHandler.NewAnalysisConsumerGroupHandlerDefault(dnsScanner, kafkaProducer)
 
-	kafkaConsumer, consumerErr := consumer.New(config.Kafka().Brokers, config.Kafka().Group, config.Kafka().TopicsConsumer, handler, context.Background())
+	kafkaConsumer, consumerErr := consumer.New(config.Kafka().Brokers, config.Kafka().GroupID, config.Kafka().TopicsConsumer, handler, context.Background())
 	if consumerErr != nil {
 		panic(consumerErr)
 	}

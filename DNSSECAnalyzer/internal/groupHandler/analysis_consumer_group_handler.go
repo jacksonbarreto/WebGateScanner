@@ -1,4 +1,4 @@
-package consumer
+package groupHandler
 
 import (
 	"encoding/json"
@@ -33,7 +33,7 @@ func NewAnalysisConsumerGroupHandlerDefault(scanner *scanner.Scanner, producer *
 	kafkaConfig := config.Kafka()
 	topics := kafkaConfig.TopicsProducer
 	topicsError := kafkaConfig.TopicsError
-	logger := logservice.NewLogServiceDefault()
+	logger := logservice.NewLogService(config.App().Id)
 	return NewAnalysisConsumerGroupHandler(scanner, producer, topics, topicsError, logger)
 }
 
