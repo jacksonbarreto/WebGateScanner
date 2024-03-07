@@ -4,7 +4,8 @@ go 1.21.0
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/jacksonbarreto/WebGateScanner/pkg/kafka v0.0.0
+	github.com/jacksonbarreto/WebGateScanner/pkg/kafka v0.0.0-20240307151149-76d080ca4c2d
+	github.com/jacksonbarreto/WebGateScanner/stls v0.0.0-20240307153020-b261a31b222a
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/spf13/viper v1.18.2
 )
@@ -48,4 +49,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/jacksonbarreto/WebGateScanner/pkg/kafka => ../pkg/kafka
+//replace github.com/jacksonbarreto/WebGateScanner/pkg/kafka => ../pkg/kafka

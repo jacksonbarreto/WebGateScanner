@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/fsnotify/fsnotify"
 	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/config"
-	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/models"
+	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/parser"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
 	"log"
 	"os"
@@ -77,10 +76,11 @@ func main() {
 	select {}
 }
 
-func worker(files <-chan string, writer *producer.Producer) {
+func worker(files <-chan string, kafkaProducer *producer.Producer) {
 	for filePath := range files {
 		log.Println("Processing file:", filePath)
-		if err := processFile(filePath, writer); err != nil {
+		processor := New(kafkaProducer, parser.New())
+		if err := processor.processFile(filePath, kafkaProducer); err != nil {
 			log.Println("Failed to process file:", err)
 			os.Rename(filePath, filepath.Join(config.App().ErrorParsePath, filepath.Base(filePath)))
 		} else {
@@ -90,35 +90,4 @@ func worker(files <-chan string, writer *producer.Producer) {
 		delete(processing, filePath)
 		lock.Unlock()
 	}
-}
-
-func processFile(filePath string, writer *producer.Producer) error {
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	var data models.TestSSLResponse
-	if err := json.Unmarshal(fileContent, &data); err != nil {
-		return err
-	}
-
-	// Simulando publicação de dados no Kafka
-	msg := KafkaMessage{
-		Origin:       config.App().Id,
-		ResultParsed: data,
-		RawData:      string(fileContent),
-	}
-	jsonData, err := json.Marshal(msg)
-	if _, _, err := writer.SendMessage(string(jsonData)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-type KafkaMessage struct {
-	Origin       string
-	ResultParsed models.TestSSLResponse
-	RawData      string
 }

@@ -3,10 +3,10 @@ package scanner
 import (
 	"bytes"
 	"fmt"
-	"github.com/jacksonbarreto/DNSSECAnalyzer/config"
-	"github.com/jacksonbarreto/DNSSECAnalyzer/internal/domainextractor"
-	"github.com/jacksonbarreto/DNSSECAnalyzer/pkg/models"
-	"github.com/jacksonbarreto/DNSSECAnalyzer/pkg/models/dnsrecords"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/config"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/internal/domainextractor"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/pkg/models"
+	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/pkg/models/dnsrecords"
 	"os"
 	"os/exec"
 )

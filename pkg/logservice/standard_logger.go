@@ -2,7 +2,6 @@ package logservice
 
 import (
 	"fmt"
-	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/config"
 	"log"
 	"os"
 )
@@ -13,16 +12,12 @@ type StandardLogger struct {
 	logger    *log.Logger
 }
 
-func NewLogService(idService string) Logger {
+func NewLogService(idService string) *StandardLogger {
 	return &StandardLogger{
 		idService: idService,
 		level:     LogLevelInfo,
 		logger:    log.New(os.Stdout, "", log.LstdFlags),
 	}
-}
-
-func NewLogServiceDefault() Logger {
-	return NewLogService(config.App().Id)
 }
 
 func (l *StandardLogger) Info(format string, v ...interface{}) {

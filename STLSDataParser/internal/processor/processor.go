@@ -3,9 +3,9 @@ package processor
 import (
 	"encoding/json"
 	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/config"
-	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/models"
 	"github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/parser"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
+	stls "github.com/jacksonbarreto/WebGateScanner/stls/models"
 	"os"
 	"path/filepath"
 )
@@ -23,14 +23,13 @@ func New(producer *producer.IProducer, parser *parser.IParser) *Processor {
 	}
 }
 
-// esses tipos de msg de response devem vir do módulo do scanner
 func (p *Processor) ProcessFile(filePath string) error {
 	fileContent, readFileErr := os.ReadFile(filePath)
 	if readFileErr != nil {
 		return readFileErr
 	}
 
-	var response models.TestSSLResponse
+	var response stls.TestSSLResponse
 	if unmarshalErr := json.Unmarshal(fileContent, &response); unmarshalErr != nil {
 		return unmarshalErr
 	}

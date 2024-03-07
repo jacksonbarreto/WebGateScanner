@@ -4,22 +4,22 @@ import (
 	"encoding/json"
 	"github.com/IBM/sarama"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/config"
-	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/internal/producer"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/internal/scanner"
-	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/pkg/logservice"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/pkg/models"
 	"github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer/pkg/models/kafkaModels"
+	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
+	"github.com/jacksonbarreto/WebGateScanner/pkg/logservice"
 )
 
 type AnalysisConsumerGroupHandler struct {
 	scanner     *scanner.Scanner
-	producer    *producer.Producer
+	producer    *producer.IProducer
 	Topics      []string
 	TopicsError []string
-	Log         logservice.Logger
+	Log         logservice.ILogger
 }
 
-func NewAnalysisConsumerGroupHandler(scanner *scanner.Scanner, producer *producer.Producer, topics, topicsError []string, logService logservice.Logger) *AnalysisConsumerGroupHandler {
+func NewAnalysisConsumerGroupHandler(scanner *scanner.Scanner, producer *producer.IProducer, topics, topicsError []string, logService logservice.ILogger) *AnalysisConsumerGroupHandler {
 	return &AnalysisConsumerGroupHandler{
 		scanner:     scanner,
 		producer:    producer,
@@ -29,7 +29,7 @@ func NewAnalysisConsumerGroupHandler(scanner *scanner.Scanner, producer *produce
 	}
 }
 
-func NewAnalysisConsumerGroupHandlerDefault(scanner *scanner.Scanner, producer *producer.Producer) *AnalysisConsumerGroupHandler {
+func NewAnalysisConsumerGroupHandlerDefault(scanner *scanner.Scanner, producer *producer.IProducer) *AnalysisConsumerGroupHandler {
 	kafkaConfig := config.Kafka()
 	topics := kafkaConfig.TopicsProducer
 	topicsError := kafkaConfig.TopicsError
@@ -61,7 +61,7 @@ func (h *AnalysisConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroup
 		}
 		for _, topic := range h.Topics {
 			h.Log.Info("Sending message to topic %s", topic)
-			partition, offset, producerErr := h.producer.SendMessage(topic, kafkaMessage)
+			partition, offset, producerErr := h.producer.SendMessage(kafkaMessage)
 			if producerErr != nil {
 				h.handleError(string(message.Value), ScanErr)
 				continue

@@ -1,7 +1,7 @@
 package parser
 
-import "github.com/jacksonbarreto/WebGateScanner/STLSDataParser/internal/models"
+import stls "github.com/jacksonbarreto/WebGateScanner/stls/models"
 
 type IParser interface {
-	ParseJson(response models.TestSSLResponse) (models.TestSSLResult, error)
+	ParseJson(response stls.TestSSLResponse) (string, error)
 }

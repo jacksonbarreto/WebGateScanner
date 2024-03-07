@@ -1,0 +1,8 @@
+App:
+  Environment: "dev"
+  Id: "TOPIC-DATA-SAVER"
+kafka:
+  Brokers: ["localhost:9092"]
+  TopicsConsumer: ["security-assessment"]
+  TopicsProducer: ["security-assessment"]
+  GroupID: "security-assessment-ingestion-group"

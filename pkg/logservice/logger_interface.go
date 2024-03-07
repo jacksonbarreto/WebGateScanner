@@ -1,6 +1,6 @@
 package logservice
 
-type Logger interface {
+type ILogger interface {
 	Debug(format string, v ...interface{})
 	Info(format string, v ...interface{})
 	Warn(format string, v ...interface{})

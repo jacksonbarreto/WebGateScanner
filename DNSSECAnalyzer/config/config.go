@@ -24,6 +24,7 @@ type KafkaConfig struct {
 	TopicsProducer []string
 	TopicsError    []string
 	GroupID        string
+	MaxRetry       int
 }
 
 type configValidator func(*Config) error

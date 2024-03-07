@@ -3,12 +3,14 @@ module github.com/jacksonbarreto/WebGateScanner/DNSSECAnalyzer
 go 1.21.0
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/IBM/sarama v1.42.1
+	github.com/jacksonbarreto/DNSSECAnalyzer v0.0.0-20231230213248-a0502e294a3a
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/spf13/viper v1.18.1
 )
 
 require (
-	bou.ke/monkey v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/eapache/go-resiliency v1.4.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
@@ -26,7 +28,6 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
