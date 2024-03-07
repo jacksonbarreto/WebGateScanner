@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/jacksonbarreto/STLSDataParser/internal/models"
+import "github.com/jacksonbarreto/WebGateScanner/internal/models"
 
 type Parser struct {
 	// I will need include logger

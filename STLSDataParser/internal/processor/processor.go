@@ -2,16 +2,17 @@ package processor
 
 import (
 	"encoding/json"
-	"github.com/jacksonbarreto/STLSDataParser/config"
-	"github.com/jacksonbarreto/STLSDataParser/internal/models"
-	"github.com/jacksonbarreto/STLSDataParser/internal/parser"
+	"github.com/jacksonbarreto/WebGateScanner/config"
+	"github.com/jacksonbarreto/WebGateScanner/internal/models"
+	"github.com/jacksonbarreto/WebGateScanner/internal/parser"
+	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka"
 	"github.com/jacksonbarreto/WebGateScanner/pkg/kafka/producer"
 	"os"
 	"path/filepath"
 )
 
 type Processor struct {
-	KafkaProducer *producer.IProducer
+	KafkaProducer *kafka.producer.IProducer
 	Parser        *parser.IParser
 	// I will need include logger
 }

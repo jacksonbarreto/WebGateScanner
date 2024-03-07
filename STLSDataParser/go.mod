@@ -1,4 +1,4 @@
-module github.com/jacksonbarreto/STLSDataParser
+module github.com/WebGateScanner/STLSDataParser
 
 go 1.21.0
 
