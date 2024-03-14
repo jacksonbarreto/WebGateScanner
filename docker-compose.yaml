@@ -2,95 +2,215 @@ version: "3.5"
 
 services:
   STLDataParser:
-    build:
-        context: ./STLDataParser
-        dockerfile: Dockerfile
-    container_name: STLDataParser
+    image: jacksonbarreto/webgatescanner-stlsdataparser:latest
+    container_name: stl_data_parser
     restart: always
+    volumes:
+      - ./error_parse:/home/error_parse
+      - ./results:/home/results
+      - ./services_config/STLDataParser/config.yaml:/stlsdataparser/config.yaml
+    depends_on:
+      kafka1:
+        condition: service_healthy
     networks:
-        - web_gate_scanner_net
+        - broke_network
 
-  DNSSECAnalyser:
-    build:
-        context: ./DNSSECAnalyser
-        dockerfile: Dockerfile
-    container_name: DNSSECAnalyser
+  DNSSECAnalyzer:
+    image: jacksonbarreto/webgatescanner-dnssecanalyzer:latest
+    container_name: dnssec_analyzer
     restart: always
+    volumes:
+      - ./services_config/DNSSECAnalyzer/config.yaml:/dnssecanalyzer/config.yaml
+    depends_on:
+      kafka1:
+        condition: service_healthy
     networks:
-        - web_gate_scanner_net
+        - broke_network
+        - web_access
 
   stls:
-    build:
-        context: ./stls
-        dockerfile: Dockerfile
+    image: jacksonbarreto/webgatescanner-stls:latest
     container_name: stls
     restart: always
+    volumes:
+      - ./services_config/stls/config.yaml:/home/stls/config.yaml
+      - ./results:/home/stls/results/
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      database:
+        condition: service_healthy
     networks:
-        - web_gate_scanner_net
+        - broke_network
+        - web_access
+
+  database:
+    image: postgres:16.2
+    container_name: postgres
+    restart: always
+    hostname: ${DB_HOST}
+    shm_size: 4096mb
+    depends_on:
+      kafka1:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGPORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
+    volumes:
+      - ./data/db_data:/var/lib/postgresql/data
+      - ./database_config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost"]
+      start_period: 5m
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    networks:
+        - broke_network
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
     restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_PORT}
+      KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok,srvr"
+    volumes:
+      - ./data/kafka_data/zookeeper_data:/var/lib/zookeeper/data
+      - ./data/kafka_data/zookeeper_datalog:/var/lib/zookeeper/log
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "echo ruok | nc localhost ${ZOOKEEPER_PORT} | grep imok" ]
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - web_gate_scanner_net
+      - broke_network
 
   kafka1:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka1
     restart: always
     depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_PORT}
       KAFKA_LISTENERS: INTERNAL://:9092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_1_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    volumes:
+      - ./data/kafka_data/kafka1:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "bash", "-c", "/usr/bin/kafka-broker-api-versions --bootstrap-server=localhost:9092"]
+      start_period: 120s
+      interval: 60s
+      timeout: 35s
+      retries: 5
     networks:
-      - web_gate_scanner_net
+      - broke_network
 
   kafka2:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka2
     restart: always
     depends_on:
-      - zookeeper
-    ports:
-      - "9093:9092"
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_PORT}
       KAFKA_LISTENERS: INTERNAL://:9092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_2_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    volumes:
+      - ./data/kafka_data/kafka2:/var/lib/kafka/data
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "/usr/bin/kafka-broker-api-versions --bootstrap-server=localhost:9092" ]
+      start_period: 120s
+      interval: 60s
+      timeout: 35s
+      retries: 5
     networks:
-      - web_gate_scanner_net
+      - broke_network
 
   kafka3:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka3
     restart: always
     depends_on:
-      - zookeeper
-    ports:
-      - "9094:9092"
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_PORT}
       KAFKA_LISTENERS: INTERNAL://:9092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_3_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    volumes:
+      - ./data/kafka_data/kafka3:/var/lib/kafka/data
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "/usr/bin/kafka-broker-api-versions --bootstrap-server=localhost:9092" ]
+      start_period: 120s
+      interval: 60s
+      timeout: 35s
+      retries: 5
     networks:
-      - web_gate_scanner_net
+      - broke_network
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.6.0
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      kafka1:
+        condition: service_healthy
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka1:9092,kafka2:9092,kafka3:9092'
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      CONTROL_CENTER_CONNECT_CLUSTER: 'kafka1:9092,kafka2:9092,kafka3:9092'
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 2
+    networks:
+      - broke_network
+      - web_access
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.0
+    container_name: schema-registry
+    depends_on:
+      kafka1:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka1:9092,kafka2:9092,kafka3:9092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - broke_network
 
 networks:
-  web_gate_scanner_net:
+  broke_network:
+    name: broke_network
     driver: bridge
-    name: web_gate_scanner_net
+    internal: true
+  web_access:
+    name: web_access
+    driver: bridge
