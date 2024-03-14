@@ -10,7 +10,7 @@ services:
       - ./results:/home/results
       - ./services_config/STLDataParser/config.yaml:/stlsdataparser/config.yaml
     depends_on:
-      kafka1:
+      control-center:
         condition: service_healthy
     networks:
         - broke_network
@@ -22,7 +22,7 @@ services:
     volumes:
       - ./services_config/DNSSECAnalyzer/config.yaml:/dnssecanalyzer/config.yaml
     depends_on:
-      kafka1:
+      control-center:
         condition: service_healthy
     networks:
         - broke_network
@@ -36,7 +36,7 @@ services:
       - ./services_config/stls/config.yaml:/home/stls/config.yaml
       - ./results:/home/stls/results/
     depends_on:
-      kafka1:
+      control-center:
         condition: service_healthy
       database:
         condition: service_healthy
@@ -51,7 +51,7 @@ services:
     hostname: ${DB_HOST}
     shm_size: 4096mb
     depends_on:
-      kafka1:
+      control-center:
         condition: service_healthy
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -121,7 +121,7 @@ services:
     container_name: kafka2
     restart: always
     depends_on:
-      zookeeper:
+      kafka1:
         condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 2
@@ -147,7 +147,7 @@ services:
     container_name: kafka3
     restart: always
     depends_on:
-      zookeeper:
+      kafka2:
         condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 3
@@ -173,7 +173,7 @@ services:
     hostname: control-center
     container_name: control-center
     depends_on:
-      kafka1:
+      schema-registry:
         condition: service_healthy
     ports:
       - "9021:9021"
@@ -187,6 +187,12 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 2
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9021/" ]
+      start_period: 2m
+      interval: 1m
+      timeout: 10s
+      retries: 3
     networks:
       - broke_network
       - web_access
@@ -195,7 +201,7 @@ services:
     image: confluentinc/cp-schema-registry:7.6.0
     container_name: schema-registry
     depends_on:
-      kafka1:
+      kafka3:
         condition: service_healthy
     ports:
       - "8081:8081"
@@ -203,6 +209,12 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka1:9092,kafka2:9092,kafka3:9092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/subjects" ]
+      start_period: 120s
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - broke_network
 
