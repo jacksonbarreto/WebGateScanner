@@ -5,7 +5,7 @@ App:
 Kafka:
   Brokers: ["kafka1:9092", "kafka2:9092", "kafka3:9092"]
   TopicsConsumer: ["evaluation-requests"]
-  TopicsProducer: "evaluation-results"
+  TopicProducer: "evaluation-results"
   TopicsError: "security-assessment-error"
   GroupID: "security-assessment-dnssec-group"
   MaxRetry: 3

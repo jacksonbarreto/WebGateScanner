@@ -13,7 +13,7 @@ services:
       control-center:
         condition: service_healthy
     networks:
-        - broke_network
+        - wan-network
 
   DNSSECAnalyzer:
     image: jacksonbarreto/webgatescanner-dnssecanalyzer:latest
@@ -25,8 +25,7 @@ services:
       control-center:
         condition: service_healthy
     networks:
-        - broke_network
-        - web_access
+        - wan-network
 
   stls:
     image: jacksonbarreto/webgatescanner-stls:latest
@@ -41,8 +40,7 @@ services:
       database:
         condition: service_healthy
     networks:
-        - broke_network
-        - web_access
+        - wan-network
 
   database:
     image: postgres:16.2
@@ -69,7 +67,7 @@ services:
       timeout: 15s
       retries: 5
     networks:
-        - broke_network
+        - wan-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
@@ -88,11 +86,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - broke_network
+      - wan-network
 
   kafka1:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka1
+    hostname: ${BROKER_1_ADDRESS}
     restart: always
     depends_on:
       zookeeper:
@@ -105,6 +104,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_1_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms1g"
     volumes:
       - ./data/kafka_data/kafka1:/var/lib/kafka/data
     healthcheck:
@@ -114,11 +114,12 @@ services:
       timeout: 35s
       retries: 5
     networks:
-      - broke_network
+      - wan-network
 
   kafka2:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka2
+    hostname: ${BROKER_2_ADDRESS}
     restart: always
     depends_on:
       kafka1:
@@ -131,6 +132,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_2_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms1g"
     volumes:
       - ./data/kafka_data/kafka2:/var/lib/kafka/data
     healthcheck:
@@ -140,11 +142,12 @@ services:
       timeout: 35s
       retries: 5
     networks:
-      - broke_network
+      - wan-network
 
   kafka3:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka3
+    hostname: ${BROKER_3_ADDRESS}
     restart: always
     depends_on:
       kafka2:
@@ -157,6 +160,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://${BROKER_3_ADDRESS}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms1g"
     volumes:
       - ./data/kafka_data/kafka3:/var/lib/kafka/data
     healthcheck:
@@ -166,7 +170,7 @@ services:
       timeout: 35s
       retries: 5
     networks:
-      - broke_network
+      - wan-network
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.6.0
@@ -194,8 +198,7 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - broke_network
-      - web_access
+      - wan-network
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.6.0
@@ -207,7 +210,7 @@ services:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka1:9092,kafka2:9092,kafka3:9092'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://${BROKER_1_ADDRESS}:9092,${BROKER_2_ADDRESS}:9092,${BROKER_3_ADDRESS}:9092"
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8081/subjects" ]
@@ -216,13 +219,9 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - broke_network
+      - wan-network
 
 networks:
-  broke_network:
-    name: broke_network
-    driver: bridge
-    internal: true
-  web_access:
-    name: web_access
+  wan-network:
+    name: wan-network
     driver: bridge

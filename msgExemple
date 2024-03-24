@@ -2,3 +2,7 @@
     "institution_id": "1uejof-f",
     "url": "www.ipp.pt"
 }
+
+docker exec -it kafka1 /bin/sh
+
+echo '{"institution_id": "1uejof-f", "url": "www.ipp.pt"}' | kafka-console-producer --broker-list kafka1:9092 --topic evaluation-requests
