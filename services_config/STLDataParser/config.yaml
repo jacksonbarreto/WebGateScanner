@@ -9,5 +9,8 @@ App:
   ProcessFileQueueSize: 100
 Kafka:
   Brokers: ["kafka1:9092", "kafka2:9092", "kafka3:9092"]
-
-
+  TopicsConsumer: ["evaluation_requests"]
+  TopicProducer: "evaluation_results"
+  TopicError: "security_assessment_error"
+  GroupID: "security_assessment_ingestion_group"
+  MaxRetry: 3
