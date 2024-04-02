@@ -6,8 +6,8 @@ services:
     container_name: stl_data_parser
     restart: always
     volumes:
-      - ./error_parse:/home/error_parse
-      - ./results:/home/results
+      - ./error_parse:/home/stlsdataparser/error_parse
+      - ./results:/home/stlsdataparser/results
       - ./services_config/STLDataParser/config.yaml:/stlsdataparser/config.yaml
     depends_on:
       control-center:

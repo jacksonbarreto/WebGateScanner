@@ -1,8 +1,8 @@
 App:
   Environment: "prod"
   Id: "DTLS-DATA-PARSER"
-  PathToWatch: "/home/results"
-  ErrorParsePath: "/home/errorParse"
+  PathToWatch: "/home/stlsdataparser/results"
+  ErrorParsePath: "/home/stlsdataparser/errorParse"
   Workers: 10
   ReadyToProcessSuffix: "done"
   ProcessFileExtension: "json"
