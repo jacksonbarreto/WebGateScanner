@@ -4,8 +4,8 @@ App:
   DNSServer: "1.1.1.1"
 Kafka:
   Brokers: ["kafka1:9092", "kafka2:9092", "kafka3:9092"]
-  TopicsConsumer: ["evaluation-requests"]
-  TopicProducer: "evaluation-results"
-  TopicsError: "security-assessment-error"
-  GroupID: "security-assessment-dnssec-group"
+  TopicsConsumer: ["evaluation_requests"]
+  TopicProducer: "evaluation_results"
+  TopicsError: "security_assessment_error"
+  GroupID: "security_assessment_dnssec_group"
   MaxRetry: 3

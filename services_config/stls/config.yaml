@@ -2,9 +2,11 @@ App:
   Environment: "prod"
   Id: "STLS-ASSESSMENT"
   PathToResults: "/home/stls/results/"
+  ReadyToProcessSuffix: "done"
+  ProcessFileExtension: "json"
 kafka:
   Brokers: ["kafka1:9092", "kafka2:9092", "kafka3:9092"]
-  TopicsConsumer: ["evaluation-requests"]
-  TopicProducer: "evaluation-results"
-  TopicsError: "security-assessment-error"
-  GroupID: "security-assessment-https-group"
+  TopicsConsumer: ["evaluation_requests"]
+  TopicProducer: "evaluation_results"
+  TopicError: "security_assessment_error"
+  GroupID: "security_assessment_https_group"
