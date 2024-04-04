@@ -8,3 +8,6 @@ up:
 
 down:
 	docker-compose down
+
+get-results:
+	scp -r vps:/home/jacks/results "C:\Users\jacks\Dropbox\Produção Acadêmica\Tese\system\WebGateScanner\results"
